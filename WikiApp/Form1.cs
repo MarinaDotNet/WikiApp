@@ -128,30 +128,58 @@ namespace WikiApp
         {
             try
             {
-                try
+                if (File.Exists("Category.txt"))
                 {
-                    StreamReader reader = new StreamReader("Category.txt");
-                
-                    while (!reader.EndOfStream)
+                    using (BinaryReader br = new BinaryReader(File.OpenRead("Category.txt")))
                     {
-                        cmbBox.Items.Add(reader.ReadLine());
+                        while (br.BaseStream.Position != br.BaseStream.Length)
+                        {
+                            cmbBox.Items.Add(br.ReadString());
+                        }
+                        br.Close();
+                    }
+                }
+                else
+                {
+                    using (BinaryWriter bw = new BinaryWriter(File.OpenWrite("Category.txt")))
+                    {
+                        bw.Flush();
+
+                        bw.Write("Array");
+                        bw.Write("List");
+                        bw.Write("Tree");
+                        bw.Write("Graphs");
+                        bw.Write("Abstract");
+                        bw.Write("Hash");
+
+                        bw.Close();
                     }
 
-                }
-                catch(FileLoadException error)
-                {
-                    errorTracing(error);
-                    MessageBox.Show("Unable to load file: Category.txt");
-                }
-                catch(FileNotFoundException error2)
-                {
-                    errorTracing(error2);
-                    MessageBox.Show("Unable to find file: Category.txt");
+                    using (BinaryReader br = new BinaryReader(File.OpenRead("Category.txt")))
+                    {
+                        while (br.BaseStream.Position != br.BaseStream.Length)
+                        {
+                            cmbBox.Items.Add(br.ReadString());
+                        }
+                        br.Close();
+                    }
                 }
             }
-            catch(Exception error)
+            catch (FileFormatException ffeError)
             {
-                errorTracing(error);
+                errorTracing(ffeError);
+            }
+            catch (FileLoadException fleError)
+            {
+                errorTracing(fleError);
+            }
+            catch (FieldAccessException faeError)
+            {
+                errorTracing(faeError);
+            }
+            catch (IOException ioeError)
+            {
+                errorTracing(ioeError);
             }
         }
 
