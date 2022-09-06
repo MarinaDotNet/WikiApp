@@ -75,6 +75,7 @@
             this.rdoButtonL.TabStop = true;
             this.rdoButtonL.Text = "Linear";
             this.rdoButtonL.UseVisualStyleBackColor = true;
+            this.rdoButtonL.CheckedChanged += new System.EventHandler(this.rdoButtonL_CheckedChanged);
             // 
             // rdoButtonN
             // 
@@ -86,6 +87,7 @@
             this.rdoButtonN.TabStop = true;
             this.rdoButtonN.Text = "Non-Linear";
             this.rdoButtonN.UseVisualStyleBackColor = true;
+            this.rdoButtonN.CheckedChanged += new System.EventHandler(this.rdoButtonN_CheckedChanged);
             // 
             // grpBox
             // 
@@ -117,6 +119,7 @@
             this.lstView.Size = new System.Drawing.Size(296, 473);
             this.lstView.TabIndex = 6;
             this.lstView.UseCompatibleStateImageBehavior = false;
+            this.lstView.View = System.Windows.Forms.View.Details;
             // 
             // clmName
             // 
@@ -126,7 +129,6 @@
             // clmCategory
             // 
             this.clmCategory.Text = "Category";
-            this.clmCategory.Width = 100;
             // 
             // btnAdd
             // 
@@ -155,6 +157,7 @@
             this.btnDelete.TabIndex = 9;
             this.btnDelete.Text = "Delete";
             this.btnDelete.UseVisualStyleBackColor = true;
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
             // 
             // btnSearch
             // 
@@ -242,7 +245,6 @@
         private TextBox txtBoxDefinition;
         private ListView lstView;
         private ColumnHeader clmName;
-        private ColumnHeader clmCategory;
         private Button btnAdd;
         private Button btnEdit;
         private Button btnDelete;
@@ -251,5 +253,6 @@
         private Button btnLoad;
         private StatusStrip stsStrip;
         private ToolStripDropDownButton drpBoxButton;
+        private ColumnHeader clmCategory;
     }
 }

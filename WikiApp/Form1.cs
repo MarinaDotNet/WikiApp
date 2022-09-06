@@ -1,6 +1,8 @@
 namespace WikiApp
 {
-    
+    //Not sure about radioButtonHighlight() method 6.6
+    //Method lstViewDisplaySort() the sort part not correctly working
+    //
     public partial class frm1 : Form
     {
         private List<Information> Wiki = new List<Information>();
@@ -10,6 +12,7 @@ namespace WikiApp
         public frm1()
         {
             InitializeComponent();
+
         }
 
         //method for error tracing
@@ -44,7 +47,7 @@ namespace WikiApp
                     txtInput.BackColor = Color.Red;
                     MessageBox.Show("Text Box should not be empty");
                 }
-                else if(string.IsNullOrEmpty(cmbBox.Text))
+                else if (string.IsNullOrEmpty(cmbBox.Text))
                 {
                     cmbBox.Focus();
                     cmbBox.BackColor = Color.Red;
@@ -52,7 +55,6 @@ namespace WikiApp
                 }
                 else if (!(rdoButtonL.Checked || rdoButtonN.Checked))
                 {
-                    grpBox.Focus();
                     grpBox.BackColor = Color.Red;
                     MessageBox.Show("Select one in Structure");
                 }
@@ -71,13 +73,13 @@ namespace WikiApp
                     run = true;
 
                 }
-               
+
             }
             catch (Exception error)
             {
                 errorTracing(error);
-            } 
-            
+            }
+
             return run;
         }
 
@@ -85,20 +87,13 @@ namespace WikiApp
         {
             try
             {
-                if(checkItems())
+                if (checkItems() && validName(txtInput.Text))
                 {
                     Information inf = new Information();
                     inf.Name = txtInput.Text;
                     inf.Category = cmbBox.Text;
 
-                    if(rdoButtonL.Checked)
-                    {
-                        inf.Structure = rdoButtonL.Text;
-                    }
-                    else
-                    {
-                        inf.Structure = rdoButtonN.Text;
-                    }
+                    inf.Structure = radioButtonText();
 
                     inf.Definition = txtBoxDefinition.Text;
 
@@ -106,13 +101,23 @@ namespace WikiApp
                     sizeWiki++;
 
                     MessageBox.Show("New data added into list");
+
+                    lstViewDisplaySort();
                 }
                 else
                 {
                     MessageBox.Show("Data wasnt added into list");
+                    if (!validName(txtInput.Text))
+                    {
+                        MessageBox.Show("Dublicate input: '" + txtInput.Text + "' alreade exists");
+                    }
                 }
             }
-            catch(Exception error)
+            catch (IOException ioeError)
+            {
+                errorTracing(ioeError);
+            }
+            catch (Exception error)
             {
                 errorTracing(error);
             }
@@ -124,6 +129,7 @@ namespace WikiApp
         }
 
         //method to populate combo Box with Categories, from txt file
+        //if file Category.txt not exists its creating new file Category.txt and fills it with data
         private void populateComboBox()
         {
             try
@@ -183,9 +189,146 @@ namespace WikiApp
             }
         }
 
+        //method checks for dublicates in Wiki List by Name
         private bool validName(string txt)
         {
-            return true;
+            return !Wiki.Exists(x => x.Name == txt);
+        }
+
+        //method return text of sellected radio button
+        private string radioButtonText()
+        {
+
+            if (radioButtonHighlight() == 0)
+            {
+
+                return rdoButtonL.Text;
+            }
+            else
+            {
+
+                return rdoButtonN.Text;
+            }
+
+        }
+
+        //method highlights the selected radioButton
+        //for first radioButton selected returns - 0, for second - 1
+        private int radioButtonHighlight()
+        {
+            if (rdoButtonL.Checked)
+            {
+                rdoButtonL.ForeColor = Color.Red;
+                rdoButtonN.ForeColor = Color.Black;
+                return 0;
+            }
+            else
+            {
+                rdoButtonN.ForeColor = Color.Red;
+                rdoButtonL.ForeColor = Color.Black;
+                return 1;
+            }
+        }
+
+        private void rdoButtonL_CheckedChanged(object sender, EventArgs e)
+        {
+            radioButtonHighlight();
+        }
+
+        private void rdoButtonN_CheckedChanged(object sender, EventArgs e)
+        {
+            radioButtonHighlight();
+        }
+
+        //method that reload all data from List Wiki into List View
+        private void lstViewDisplaySort()
+        {
+            try
+            {
+                lstView.View = View.Details;
+
+                //Sort
+                if(Wiki.Count > 1)
+                {
+                    for(int i = 0; i < Wiki.Count - 1; i++)
+                    {
+
+                            Information inf1 = new Information();
+                            Information inf2 = new Information();
+
+                            inf1 = Wiki[i];
+                            inf2 = Wiki[i+1];
+                            if(inf1.Name.CompareTo(inf2.Name) > 0)
+                            {
+                                Wiki[i] = inf2;
+                                Wiki[i + 1] = inf1;
+                            }
+                    }
+
+                }
+                
+                
+                //display
+                if (Wiki.Count > -1)
+                {
+                    lstView.Items.Clear();
+                    for (int i = 0; i < Wiki.Count; i++)
+                    {
+                        ListViewItem item = new ListViewItem(Wiki[i].Name);
+                        item.SubItems.Add(Wiki[i].Category);
+                        lstView.Items.Add(item);
+                    }
+                }
+            }
+            catch (InvalidOperationException ioeError)
+            {
+                errorTracing(ioeError);
+            }
+            catch (ArgumentException aeError)
+            {
+                errorTracing(aeError);
+            }
+            catch (IOException error)
+            {
+                errorTracing(error);
+            }
+        }
+
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (lstView.SelectedItems.Count > 0)
+                {
+                    var check = MessageBox.Show("The data would be deleted, you want to countinue?",
+                        "Deliting Data", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (check == DialogResult.Yes)
+                    {
+                        int index = lstView.FocusedItem.Index;
+
+                        Wiki.RemoveAt(index);
+
+                        sizeWiki--;
+
+                        lstViewDisplaySort();
+                    }
+                    else
+                    {
+                        MessageBox.Show("The deliting was canceled");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Select in List View data to delete it");
+                }
+            }
+            catch (IOException ioeError)
+            {
+                errorTracing(ioeError);
+            }
         }
     }
+    
 }
