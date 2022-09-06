@@ -240,36 +240,32 @@ namespace WikiApp
             radioButtonHighlight();
         }
 
-        //method that reload all data from List Wiki into List View
+        //method reloads and sorts all data from List Wiki into List View
         private void lstViewDisplaySort()
         {
             try
             {
                 lstView.View = View.Details;
 
-                //Sort
-                if(Wiki.Count > 1)
+                //sort
+                if (Wiki.Count > 1)
                 {
                     for(int i = 0; i < Wiki.Count - 1; i++)
                     {
-
-                            Information inf1 = new Information();
-                            Information inf2 = new Information();
-
-                            inf1 = Wiki[i];
-                            inf2 = Wiki[i+1];
-                            if(inf1.Name.CompareTo(inf2.Name) > 0)
+                        for (int j = i + 1; j < Wiki.Count; j++)
+                        {
+                            if (string.Compare((Wiki[i].Name.ToString()), 
+                                (Wiki[j].Name.ToString())) > 0)
                             {
-                                Wiki[i] = inf2;
-                                Wiki[i + 1] = inf1;
+                                swap(i, j);
                             }
+                        }
                     }
-
                 }
                 
                 
                 //display
-                if (Wiki.Count > -1)
+                if (Wiki.Count > 0)
                 {
                     lstView.Items.Clear();
                     for (int i = 0; i < Wiki.Count; i++)
@@ -288,12 +284,37 @@ namespace WikiApp
             {
                 errorTracing(aeError);
             }
+            catch (IndexOutOfRangeException ioorError)
+            {
+                errorTracing(ioorError);
+            }
             catch (IOException error)
             {
                 errorTracing(error);
             }
         }
 
+
+        private void swap(int left, int right)
+        {
+            try
+            {
+                    Information inf = new Information();
+
+                    inf = Wiki[left];
+                    Wiki[left] = Wiki[right];
+                    Wiki[right] = inf;
+            }
+            catch(IndexOutOfRangeException ioorError)
+            {
+                errorTracing(ioorError);
+            }
+            catch (IOException ioerror)
+            {
+                errorTracing(ioerror);
+            }
+
+        }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
@@ -329,6 +350,8 @@ namespace WikiApp
                 errorTracing(ioeError);
             }
         }
+
+        
     }
     
 }
