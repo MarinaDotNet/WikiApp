@@ -1,18 +1,20 @@
+using System.IO;
+using static System.Net.Mime.MediaTypeNames;
+
 namespace WikiApp
 {
-    //Not sure about radioButtonHighlight() method 6.6
-    //Method lstViewDisplaySort() the sort part not correctly working
-    //
+    //add on close to save error in file
+    //on form load not loads data from file
     public partial class frm1 : Form
     {
         private List<Information> Wiki = new List<Information>();
         private int sizeWiki = -1;
 
+        //List to store all errors during program run
         private List<string> errors = new List<string>();
         public frm1()
         {
             InitializeComponent();
-
         }
 
         //method for error tracing
@@ -83,6 +85,7 @@ namespace WikiApp
             return run;
         }
 
+        //method adds new data into List Wiki
         private void btnAdd_Click(object sender, EventArgs e)
         {
             try
@@ -125,6 +128,9 @@ namespace WikiApp
 
         private void frm1_Load(object sender, EventArgs e)
         {
+            //not working
+            loadFrom("definition.dat");
+            //working
             populateComboBox();
         }
 
@@ -257,7 +263,11 @@ namespace WikiApp
                             if (string.Compare((Wiki[i].Name.ToString()), 
                                 (Wiki[j].Name.ToString())) > 0)
                             {
-                                swap(i, j);
+                                Information inf = new Information();
+
+                                inf = Wiki[i];
+                                Wiki[i] = Wiki[j];
+                                Wiki[j] = inf;
                             }
                         }
                     }
@@ -294,28 +304,7 @@ namespace WikiApp
             }
         }
 
-
-        private void swap(int left, int right)
-        {
-            try
-            {
-                    Information inf = new Information();
-
-                    inf = Wiki[left];
-                    Wiki[left] = Wiki[right];
-                    Wiki[right] = inf;
-            }
-            catch(IndexOutOfRangeException ioorError)
-            {
-                errorTracing(ioorError);
-            }
-            catch (IOException ioerror)
-            {
-                errorTracing(ioerror);
-            }
-
-        }
-
+        //deletes data from Wiki and reloads lstView
         private void btnDelete_Click(object sender, EventArgs e)
         {
             try
@@ -351,7 +340,301 @@ namespace WikiApp
             }
         }
 
+        //edits the selected data at lstView in Wiki
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if(!(string.IsNullOrEmpty(txtInput.Text) || string.IsNullOrEmpty(txtBoxDefinition.Text) || string.IsNullOrEmpty(cmbBox.Text)))
+                {
+                    int index = lstView.FocusedItem.Index;
+                    Wiki[index].Name = txtInput.Text;
+                    Wiki[index].Category = cmbBox.Text;
+                    Wiki[index].Definition = txtBoxDefinition.Text;
+                    Wiki[index].Structure = radioButtonText();
+
+                    lstViewDisplaySort();
+                }
+                else
+                {
+                    MessageBox.Show("To Edite data select it from List View");
+                }
+            }
+            catch (IOException ioeError)
+            {
+                errorTracing(ioeError);
+            }
+        }
+
+        //when data selected in lstView all information displaying in the related components (txtFields, rdoButtons and etc.)
+        private void lstView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (lstView.SelectedItems.Count > 0)
+                {
+                    int index = lstView.FocusedItem.Index;
+                    txtInput.Text = Wiki[index].Name;
+                    txtBoxDefinition.Text = Wiki[index].Definition;
+                    cmbBox.Text = Wiki[index].Category;
+
+                    string radioButton = Wiki[index].Structure;
+                    if(radioButton.CompareTo(rdoButtonL.Text) == 0)
+                    {
+                        rdoButtonL.Checked = true;
+                        rdoButtonN.Checked = false;
+                    }    
+                    else if(radioButton.CompareTo(rdoButtonN.Text) == 0)
+                    {
+                        rdoButtonN.Checked = true;
+                        rdoButtonL.Checked = false;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Data for Structure was not found");
+                        rdoButtonN.Checked = false;
+                        rdoButtonL.Checked = false;
+                    }
+
+                    radioButtonHighlight();
+                }
+
+            }
+            catch (Exception error)
+            {
+                errorTracing(error);
+            }
+        }
+
         
+        private void bntSave_Click(object sender, EventArgs e)
+        {           
+            SaveFileDialog save = new SaveFileDialog();
+            DialogResult result = save.ShowDialog();
+            
+            if(result == DialogResult.OK)
+            {
+                writeTo(save.FileName);
+
+                MessageBox.Show("File was saved");
+            }
+            else
+            {
+                MessageBox.Show("File was not saved");
+            }
+        }
+
+        //binary search with ignore case, by Data Structure name at Wiki.
+        //checks if txtSearch is not empty
+        //once data found highlights appropriate line in lstView clmName,
+        //and populates related componets(txtFields and etc.) with appropriate data
+        //at the end clears txtSearch
+        //if data not found shows error message
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (Wiki.Count != 0)
+                {
+                    if (!string.IsNullOrEmpty(txtSearch.Text))
+                    {
+                        int middle;
+                        int low = 0;
+                        int high = Wiki.Count - 1;
+                        bool run = true;
+
+                        while ((low < high) && run)
+                        {
+                            middle = (low + high) / 2;
+
+                            if ((Wiki[middle].Name).ToLower().CompareTo((txtSearch.Text).ToLower()) > 0)
+                            {
+                                high--;
+                            }
+                            else if ((Wiki[middle].Name).ToLower().CompareTo((txtSearch.Text).ToLower()) < 0)
+                            {
+                                low++;
+                            }
+                            else if ((Wiki[middle].Name).ToLower().CompareTo((txtSearch.Text).ToLower()) == 0)
+                            {
+                                run = false;
+                                clearItems();
+
+                                lstView.Focus();
+                                lstView.SelectedIndices.Clear();
+                                lstView.Items[middle].Selected = true;
+
+                                txtInput.Text = Wiki[middle].Name;
+                                cmbBox.Text = Wiki[middle].Category;
+                                txtBoxDefinition.Text = Wiki[middle].Definition;
+
+                                if (Wiki[middle].Structure.CompareTo("Linear") == 0)
+                                {
+                                    rdoButtonL.Checked = true;
+                                    rdoButtonN.Checked = false;
+                                }
+                                else
+                                {
+                                    rdoButtonL.Checked = false;
+                                    rdoButtonN.Checked = true;
+                                }
+
+                                radioButtonHighlight();
+
+                                txtSearch.Clear();
+                                
+                            }
+                            if (low == high)
+                            {
+                                MessageBox.Show("Data was not found");
+                                run = false;
+                                txtSearch.Clear();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Enter something for Search in txt Box");
+                        txtSearch.Focus();   
+                    }
+
+                }
+                else
+                {
+                    MessageBox.Show("There no data for search in List View, first add some data");
+                }
+            }
+            catch (ArgumentException arError)
+            {
+                errorTracing(arError);
+            }
+            catch(Exception error)
+            {
+                errorTracing(error);
+            }
+        }
+
+        //method clears and resets the components
+        private void clearItems()
+        {
+            txtInput.Clear();
+            txtBoxDefinition.Clear();
+            cmbBox.Text = "";
+            rdoButtonL.Checked = false;
+            rdoButtonL.ForeColor = DefaultForeColor;
+            rdoButtonN.Checked = false;
+            rdoButtonN.ForeColor = DefaultForeColor;
+        }
+
+        private void txtInput_DoubleClick(object sender, EventArgs e)
+        {
+            clearItems();
+        }
+
+        
+        private void btnLoad_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var check = MessageBox.Show("By loading from new file previouse data would be deleted. Do you want to continue?",
+                        "Loading from File", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (check == DialogResult.Yes)
+                {
+                    OpenFileDialog open = new OpenFileDialog();
+                    DialogResult result = open.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                    {
+                        loadFrom(open.FileName);
+
+                        lstView.Items.Clear();
+
+                        lstViewDisplaySort();
+                        MessageBox.Show("Data was loaded");
+                    }
+                }               
+
+            }
+            catch(Exception error)
+            {
+                errorTracing(error);
+            }
+        }
+        
+        //load file from user choice
+        private void loadFrom(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    using(BinaryReader br = new BinaryReader(File.OpenRead(path)))
+                    {
+                        Wiki.Clear();
+                        sizeWiki = -1;
+
+                        while(br.BaseStream.Position != br.BaseStream.Length)
+                        {
+                            Information inf = new Information();
+                            inf.Name = br.ReadString();
+                            inf.Category = br.ReadString();
+                            inf.Structure = br.ReadString();
+                            inf.Definition = br.ReadString();
+
+                            Wiki.Add(inf);
+                            sizeWiki++;
+                        }
+
+                        br.Close();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("File was not found: " + path);
+                }
+            }
+            catch (Exception error)
+            {
+                errorTracing(error);
+            }
+        }
+
+        //saves all data from Wiki into file by user choise
+        private void writeTo(string path)
+        {
+            try
+            {                
+                using(BinaryWriter bw = new BinaryWriter(File.OpenWrite(path)))
+                {
+                    bw.Flush();
+
+
+
+                    for (int i = 0; i <= sizeWiki; i++)
+                    {
+                        bw.Write(Wiki[i].Name);
+                        bw.Write(Wiki[i].Category);
+                        bw.Write(Wiki[i].Structure);
+                        bw.Write(Wiki[i].Definition);
+                    }
+
+                    bw.Close();
+                }
+
+            }
+            catch (Exception error)
+            {
+                errorTracing(error);
+            }
+        }
+
+        private void frm1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            File.WriteAllText("definition.dat", "");
+
+            writeTo("definition.dat");
+        }
     }
     
 }

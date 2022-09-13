@@ -46,6 +46,8 @@
             this.btnLoad = new System.Windows.Forms.Button();
             this.stsStrip = new System.Windows.Forms.StatusStrip();
             this.drpBoxButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.label1 = new System.Windows.Forms.Label();
+            this.txtSearch = new System.Windows.Forms.TextBox();
             this.grpBox.SuspendLayout();
             this.stsStrip.SuspendLayout();
             this.SuspendLayout();
@@ -56,6 +58,7 @@
             this.txtInput.Name = "txtInput";
             this.txtInput.Size = new System.Drawing.Size(200, 23);
             this.txtInput.TabIndex = 0;
+            this.txtInput.DoubleClick += new System.EventHandler(this.txtInput_DoubleClick);
             // 
             // cmbBox
             // 
@@ -120,19 +123,21 @@
             this.lstView.TabIndex = 6;
             this.lstView.UseCompatibleStateImageBehavior = false;
             this.lstView.View = System.Windows.Forms.View.Details;
+            this.lstView.SelectedIndexChanged += new System.EventHandler(this.lstView_SelectedIndexChanged);
             // 
             // clmName
             // 
             this.clmName.Text = "Name";
-            this.clmName.Width = 100;
+            this.clmName.Width = 200;
             // 
             // clmCategory
             // 
             this.clmCategory.Text = "Category";
+            this.clmCategory.Width = 100;
             // 
             // btnAdd
             // 
-            this.btnAdd.Location = new System.Drawing.Point(270, 60);
+            this.btnAdd.Location = new System.Drawing.Point(273, 60);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(75, 23);
             this.btnAdd.TabIndex = 7;
@@ -142,16 +147,17 @@
             // 
             // btnEdit
             // 
-            this.btnEdit.Location = new System.Drawing.Point(270, 94);
+            this.btnEdit.Location = new System.Drawing.Point(273, 91);
             this.btnEdit.Name = "btnEdit";
             this.btnEdit.Size = new System.Drawing.Size(75, 23);
             this.btnEdit.TabIndex = 8;
             this.btnEdit.Text = "Edit";
             this.btnEdit.UseVisualStyleBackColor = true;
+            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
             // 
             // btnDelete
             // 
-            this.btnDelete.Location = new System.Drawing.Point(270, 128);
+            this.btnDelete.Location = new System.Drawing.Point(273, 122);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(75, 23);
             this.btnDelete.TabIndex = 9;
@@ -161,30 +167,33 @@
             // 
             // btnSearch
             // 
-            this.btnSearch.Location = new System.Drawing.Point(270, 162);
+            this.btnSearch.Location = new System.Drawing.Point(273, 215);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(75, 23);
             this.btnSearch.TabIndex = 10;
             this.btnSearch.Text = "Search";
             this.btnSearch.UseVisualStyleBackColor = true;
+            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
             // 
             // bntSave
             // 
-            this.bntSave.Location = new System.Drawing.Point(270, 196);
+            this.bntSave.Location = new System.Drawing.Point(273, 184);
             this.bntSave.Name = "bntSave";
             this.bntSave.Size = new System.Drawing.Size(75, 23);
             this.bntSave.TabIndex = 11;
             this.bntSave.Text = "Save";
             this.bntSave.UseVisualStyleBackColor = true;
+            this.bntSave.Click += new System.EventHandler(this.bntSave_Click);
             // 
             // btnLoad
             // 
-            this.btnLoad.Location = new System.Drawing.Point(270, 230);
+            this.btnLoad.Location = new System.Drawing.Point(273, 153);
             this.btnLoad.Name = "btnLoad";
             this.btnLoad.Size = new System.Drawing.Size(75, 23);
             this.btnLoad.TabIndex = 12;
             this.btnLoad.Text = "Load";
             this.btnLoad.UseVisualStyleBackColor = true;
+            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
             // 
             // stsStrip
             // 
@@ -206,11 +215,29 @@
             this.drpBoxButton.Size = new System.Drawing.Size(29, 20);
             this.drpBoxButton.Text = "Errors";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(263, 246);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(94, 15);
+            this.label1.TabIndex = 15;
+            this.label1.Text = "Search Text Field";
+            // 
+            // txtSearch
+            // 
+            this.txtSearch.Location = new System.Drawing.Point(260, 269);
+            this.txtSearch.Name = "txtSearch";
+            this.txtSearch.Size = new System.Drawing.Size(100, 23);
+            this.txtSearch.TabIndex = 16;
+            // 
             // frm1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(696, 543);
+            this.Controls.Add(this.txtSearch);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.stsStrip);
             this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.bntSave);
@@ -225,6 +252,7 @@
             this.Controls.Add(this.txtInput);
             this.Name = "frm1";
             this.Text = "Form1";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frm1_FormClosed);
             this.Load += new System.EventHandler(this.frm1_Load);
             this.grpBox.ResumeLayout(false);
             this.grpBox.PerformLayout();
@@ -254,5 +282,7 @@
         private StatusStrip stsStrip;
         private ToolStripDropDownButton drpBoxButton;
         private ColumnHeader clmCategory;
+        private Label label1;
+        private TextBox txtSearch;
     }
 }
