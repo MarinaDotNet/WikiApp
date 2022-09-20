@@ -117,6 +117,7 @@
             this.lstView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.clmName,
             this.clmCategory});
+            this.lstView.FullRowSelect = true;
             this.lstView.Location = new System.Drawing.Point(378, 23);
             this.lstView.Name = "lstView";
             this.lstView.Size = new System.Drawing.Size(296, 473);

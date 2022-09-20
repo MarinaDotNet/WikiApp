@@ -3,15 +3,15 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace WikiApp
 {
-    //add on close to save error in file
-    //on form load not loads data from file
+    //check if needs last else in method radioButtonText() ~ line198
     public partial class frm1 : Form
     {
-        private List<Information> Wiki = new List<Information>();
+        private static string path = "definition.bin";
+        private static List<Information> Wiki = new List<Information>();
         private int sizeWiki = -1;
 
         //List to store all errors during program run
-        private List<string> errors = new List<string>();
+        private static List<string> errors = new List<string>();
         public frm1()
         {
             InitializeComponent();
@@ -37,7 +37,7 @@ namespace WikiApp
         }
 
         //method checks if there all appropriate items in Form has been filled
-        //if not it focusing on first unfilled item and changing color
+        //if not it focusing on first unfilled item
         private bool checkItems()
         {
             bool run = false;
@@ -46,32 +46,25 @@ namespace WikiApp
                 if (string.IsNullOrEmpty(txtInput.Text))
                 {
                     txtInput.Focus();
-                    txtInput.BackColor = Color.Red;
                     MessageBox.Show("Text Box should not be empty");
                 }
                 else if (string.IsNullOrEmpty(cmbBox.Text))
                 {
                     cmbBox.Focus();
-                    cmbBox.BackColor = Color.Red;
                     MessageBox.Show("Select Category from ComboBox");
                 }
                 else if (!(rdoButtonL.Checked || rdoButtonN.Checked))
                 {
-                    grpBox.BackColor = Color.Red;
                     MessageBox.Show("Select one in Structure");
+
                 }
                 else if (string.IsNullOrEmpty(txtBoxDefinition.Text))
                 {
                     txtBoxDefinition.Focus();
-                    txtBoxDefinition.BackColor = Color.Red;
                     MessageBox.Show("Deffinition text Box should not be empty");
                 }
                 else
                 {
-                    txtInput.BackColor = DefaultBackColor;
-                    cmbBox.BackColor = DefaultBackColor;
-                    txtBoxDefinition.BackColor = DefaultBackColor;
-                    grpBox.BackColor = DefaultBackColor;
                     run = true;
 
                 }
@@ -128,9 +121,9 @@ namespace WikiApp
 
         private void frm1_Load(object sender, EventArgs e)
         {
-            //not working
-            loadFrom("definition.dat");
-            //working
+            loadFrom(path);
+            lstViewDisplaySort();
+
             populateComboBox();
         }
 
@@ -204,16 +197,20 @@ namespace WikiApp
         //method return text of sellected radio button
         private string radioButtonText()
         {
-
             if (radioButtonHighlight() == 0)
             {
 
                 return rdoButtonL.Text;
             }
-            else
+            else if (radioButtonHighlight() == 1)
             {
 
                 return rdoButtonN.Text;
+            }
+            else
+            {
+                MessageBox.Show("Structure was not found");
+                return "Structure was not found";
             }
 
         }
@@ -222,18 +219,22 @@ namespace WikiApp
         //for first radioButton selected returns - 0, for second - 1
         private int radioButtonHighlight()
         {
-            if (rdoButtonL.Checked)
+            int index = -1;
+
+            foreach (var rdButton in grpBox.Controls.OfType<RadioButton>())
             {
-                rdoButtonL.ForeColor = Color.Red;
-                rdoButtonN.ForeColor = Color.Black;
-                return 0;
+                if (rdButton.Checked)
+                {
+                    rdButton.ForeColor = Color.Red;
+                    index = grpBox.Controls.GetChildIndex(rdButton);
+                }
+                else
+                {
+                    rdButton.ForeColor = Color.Black;
+                }
+
             }
-            else
-            {
-                rdoButtonN.ForeColor = Color.Red;
-                rdoButtonL.ForeColor = Color.Black;
-                return 1;
-            }
+            return index;
         }
 
         private void rdoButtonL_CheckedChanged(object sender, EventArgs e)
@@ -256,11 +257,11 @@ namespace WikiApp
                 //sort
                 if (Wiki.Count > 1)
                 {
-                    for(int i = 0; i < Wiki.Count - 1; i++)
+                    for (int i = 0; i < Wiki.Count - 1; i++)
                     {
                         for (int j = i + 1; j < Wiki.Count; j++)
                         {
-                            if (string.Compare((Wiki[i].Name.ToString()), 
+                            if (string.Compare((Wiki[i].Name.ToString()),
                                 (Wiki[j].Name.ToString())) > 0)
                             {
                                 Information inf = new Information();
@@ -272,8 +273,8 @@ namespace WikiApp
                         }
                     }
                 }
-                
-                
+
+
                 //display
                 if (Wiki.Count > 0)
                 {
@@ -345,7 +346,7 @@ namespace WikiApp
         {
             try
             {
-                if(!(string.IsNullOrEmpty(txtInput.Text) || string.IsNullOrEmpty(txtBoxDefinition.Text) || string.IsNullOrEmpty(cmbBox.Text)))
+                if (!(string.IsNullOrEmpty(txtInput.Text) || string.IsNullOrEmpty(txtBoxDefinition.Text) || string.IsNullOrEmpty(cmbBox.Text)))
                 {
                     int index = lstView.FocusedItem.Index;
                     Wiki[index].Name = txtInput.Text;
@@ -354,6 +355,8 @@ namespace WikiApp
                     Wiki[index].Structure = radioButtonText();
 
                     lstViewDisplaySort();
+
+                    clearItems();
                 }
                 else
                 {
@@ -379,12 +382,12 @@ namespace WikiApp
                     cmbBox.Text = Wiki[index].Category;
 
                     string radioButton = Wiki[index].Structure;
-                    if(radioButton.CompareTo(rdoButtonL.Text) == 0)
+                    if (radioButton.CompareTo(rdoButtonL.Text) == 0)
                     {
                         rdoButtonL.Checked = true;
                         rdoButtonN.Checked = false;
-                    }    
-                    else if(radioButton.CompareTo(rdoButtonN.Text) == 0)
+                    }
+                    else if (radioButton.CompareTo(rdoButtonN.Text) == 0)
                     {
                         rdoButtonN.Checked = true;
                         rdoButtonL.Checked = false;
@@ -406,13 +409,15 @@ namespace WikiApp
             }
         }
 
-        
+        //allows user to save file only in binary format
         private void bntSave_Click(object sender, EventArgs e)
-        {           
+        {
             SaveFileDialog save = new SaveFileDialog();
+            save.Filter = "Binary | *.bin";
+            save.DefaultExt = "bin";
             DialogResult result = save.ShowDialog();
-            
-            if(result == DialogResult.OK)
+
+            if (result == DialogResult.OK)
             {
                 writeTo(save.FileName);
 
@@ -424,7 +429,8 @@ namespace WikiApp
             }
         }
 
-        //binary search with ignore case, by Data Structure name at Wiki.
+        //Built in BinarySearch() 
+        //ignore case
         //checks if txtSearch is not empty
         //once data found highlights appropriate line in lstView clmName,
         //and populates related componets(txtFields and etc.) with appropriate data
@@ -438,64 +444,63 @@ namespace WikiApp
                 {
                     if (!string.IsNullOrEmpty(txtSearch.Text))
                     {
-                        int middle;
-                        int low = 0;
-                        int high = Wiki.Count - 1;
-                        bool run = true;
+                        lstViewDisplaySort();
 
-                        while ((low < high) && run)
+                        List<string> search = new List<string>();
+
+                        for (int i = 0; i < Wiki.Count; i++)
                         {
-                            middle = (low + high) / 2;
 
-                            if ((Wiki[middle].Name).ToLower().CompareTo((txtSearch.Text).ToLower()) > 0)
+                            search.Add(Wiki[i].Name.ToString().ToLower());
+
+                        }
+
+                        if (search.BinarySearch(txtSearch.Text.ToLower()) > -1)
+                        {
+                            //clearing all GUI Form components(txtBoxes, rdoButtons and etc.)
+                            clearItems();
+
+                            //selecting the found data in ListView
+                            lstView.Focus();
+                            lstView.SelectedIndices.Clear();
+                            lstView.Items[search.BinarySearch(txtSearch.Text.ToLower())].Selected = true;
+
+                            //populating the components with appropriate data
+                            txtInput.Text = Wiki[search.BinarySearch(txtSearch.Text.ToLower())].Name;
+                            cmbBox.Text = Wiki[search.BinarySearch(txtSearch.Text.ToLower())].Category;
+                            txtBoxDefinition.Text = Wiki[search.BinarySearch(txtSearch.Text.ToLower())].Definition;
+
+                            if (rdoButtonL.Text.CompareTo(Wiki[search.BinarySearch(txtSearch.Text.ToLower())].Structure) == 0)
                             {
-                                high--;
+                                rdoButtonL.Checked = true;
+                                rdoButtonN.Checked = false;
                             }
-                            else if ((Wiki[middle].Name).ToLower().CompareTo((txtSearch.Text).ToLower()) < 0)
+                            else if (rdoButtonN.Text.CompareTo(Wiki[search.BinarySearch(txtSearch.Text.ToLower())].Structure) == 0)
                             {
-                                low++;
+                                rdoButtonL.Checked = false;
+                                rdoButtonN.Checked = true;
                             }
-                            else if ((Wiki[middle].Name).ToLower().CompareTo((txtSearch.Text).ToLower()) == 0)
+                            else
                             {
-                                run = false;
-                                clearItems();
-
-                                lstView.Focus();
-                                lstView.SelectedIndices.Clear();
-                                lstView.Items[middle].Selected = true;
-
-                                txtInput.Text = Wiki[middle].Name;
-                                cmbBox.Text = Wiki[middle].Category;
-                                txtBoxDefinition.Text = Wiki[middle].Definition;
-
-                                if (Wiki[middle].Structure.CompareTo("Linear") == 0)
-                                {
-                                    rdoButtonL.Checked = true;
-                                    rdoButtonN.Checked = false;
-                                }
-                                else
-                                {
-                                    rdoButtonL.Checked = false;
-                                    rdoButtonN.Checked = true;
-                                }
-
-                                radioButtonHighlight();
-
-                                txtSearch.Clear();
-                                
+                                rdoButtonL.Checked = false;
+                                rdoButtonN.Checked = false;
+                                MessageBox.Show("The Structure for :'" + txtInput.Text + "'\nDefinition Name was not found");
                             }
-                            if (low == high)
-                            {
-                                MessageBox.Show("Data was not found");
-                                run = false;
-                                txtSearch.Clear();
-                            }
+
+                            radioButtonHighlight();
+
+                            txtSearch.Clear();
+                        }
+                        else
+                        {
+                            MessageBox.Show("The data: '" + txtSearch.Text + "' was not found");
+                            txtSearch.Clear();
                         }
                     }
                     else
                     {
                         MessageBox.Show("Enter something for Search in txt Box");
-                        txtSearch.Focus();   
+                        txtSearch.Focus();
                     }
 
                 }
@@ -504,11 +509,12 @@ namespace WikiApp
                     MessageBox.Show("There no data for search in List View, first add some data");
                 }
             }
+
             catch (ArgumentException arError)
             {
                 errorTracing(arError);
             }
-            catch(Exception error)
+            catch (Exception error)
             {
                 errorTracing(error);
             }
@@ -524,6 +530,13 @@ namespace WikiApp
             rdoButtonL.ForeColor = DefaultForeColor;
             rdoButtonN.Checked = false;
             rdoButtonN.ForeColor = DefaultForeColor;
+
+            lstView.Focus();
+            lstView.SelectedIndices.Clear();
+
+            txtInput.BackColor = Color.White;
+            txtBoxDefinition.BackColor = Color.White;
+            cmbBox.BackColor = Color.White;
         }
 
         private void txtInput_DoubleClick(object sender, EventArgs e)
@@ -531,7 +544,7 @@ namespace WikiApp
             clearItems();
         }
 
-        
+        //load file from user choice
         private void btnLoad_Click(object sender, EventArgs e)
         {
             try
@@ -542,6 +555,8 @@ namespace WikiApp
                 if (check == DialogResult.Yes)
                 {
                     OpenFileDialog open = new OpenFileDialog();
+                    open.Filter = "Binary | *.bin";
+                    open.DefaultExt = "bin";
                     DialogResult result = open.ShowDialog();
 
                     if (result == DialogResult.OK)
@@ -553,28 +568,40 @@ namespace WikiApp
                         lstViewDisplaySort();
                         MessageBox.Show("Data was loaded");
                     }
-                }               
+                }
 
             }
-            catch(Exception error)
+            catch (FileFormatException ffeError)
             {
-                errorTracing(error);
+                errorTracing(ffeError);
+            }
+            catch (FileLoadException fleError)
+            {
+                errorTracing(fleError);
+            }
+            catch (FieldAccessException faeError)
+            {
+                errorTracing(faeError);
+            }
+            catch (IOException ioeError)
+            {
+                errorTracing(ioeError);
             }
         }
-        
-        //load file from user choice
+
+        //loads default file
         private void loadFrom(string path)
         {
             try
             {
                 if (File.Exists(path))
                 {
-                    using(BinaryReader br = new BinaryReader(File.OpenRead(path)))
+                    using (BinaryReader br = new BinaryReader(File.OpenRead(path)))
                     {
                         Wiki.Clear();
                         sizeWiki = -1;
 
-                        while(br.BaseStream.Position != br.BaseStream.Length)
+                        while (br.BaseStream.Position != br.BaseStream.Length)
                         {
                             Information inf = new Information();
                             inf.Name = br.ReadString();
@@ -594,9 +621,21 @@ namespace WikiApp
                     MessageBox.Show("File was not found: " + path);
                 }
             }
-            catch (Exception error)
+            catch (FileFormatException ffeError)
             {
-                errorTracing(error);
+                errorTracing(ffeError);
+            }
+            catch (FileLoadException fleError)
+            {
+                errorTracing(fleError);
+            }
+            catch (FieldAccessException faeError)
+            {
+                errorTracing(faeError);
+            }
+            catch (IOException ioeError)
+            {
+                errorTracing(ioeError);
             }
         }
 
@@ -604,8 +643,8 @@ namespace WikiApp
         private void writeTo(string path)
         {
             try
-            {                
-                using(BinaryWriter bw = new BinaryWriter(File.OpenWrite(path)))
+            {
+                using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(path)))
                 {
                     bw.Flush();
 
@@ -631,10 +670,10 @@ namespace WikiApp
 
         private void frm1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            File.WriteAllText("definition.dat", "");
+            File.WriteAllText(path, "");
 
-            writeTo("definition.dat");
+            writeTo(path);
         }
     }
-    
+
 }
