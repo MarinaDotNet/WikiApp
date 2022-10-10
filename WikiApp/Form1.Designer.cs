@@ -59,6 +59,7 @@
             this.txtInput.Size = new System.Drawing.Size(200, 23);
             this.txtInput.TabIndex = 0;
             this.txtInput.DoubleClick += new System.EventHandler(this.txtInput_DoubleClick);
+            this.txtInput.MouseMove += new System.Windows.Forms.MouseEventHandler(this.txtInput_MouseMove);
             // 
             // cmbBox
             // 
@@ -252,7 +253,7 @@
             this.Controls.Add(this.cmbBox);
             this.Controls.Add(this.txtInput);
             this.Name = "frm1";
-            this.Text = "Form1";
+            this.Text = "Wiki Applicatcion";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frm1_FormClosed);
             this.Load += new System.EventHandler(this.frm1_Load);
             this.grpBox.ResumeLayout(false);

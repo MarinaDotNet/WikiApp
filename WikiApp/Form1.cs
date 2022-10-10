@@ -3,12 +3,12 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace WikiApp
 {
-    //check if needs last else in method radioButtonText() ~ line198
+    //ComboBox array from txt file?
     public partial class frm1 : Form
     {
-        private static string path = "definition.bin";
+        private static readonly string path = "definition.bin";
         private static List<Information> Wiki = new List<Information>();
-        private int sizeWiki = -1;
+        private int sizeWiki = Wiki.Count - 1;
 
         //List to store all errors during program run
         private static List<string> errors = new List<string>();
@@ -78,6 +78,31 @@ namespace WikiApp
             return run;
         }
 
+        //filter out numeric or special character input
+        private void filterNumCharInput(TextBox txt)
+        {
+            string name = "";
+            if (txt.Text.Any(char.IsDigit) || txt.Text.All(char.IsControl))
+            {
+                foreach (Char ch in txt.Text)
+                {
+                    try
+                    {
+                        int.Parse(ch.ToString());
+                    }
+                    catch
+                    {
+                        if (!(ch.ToString().All(char.IsControl)))
+                        {
+                            name += ch.ToString();
+                        }
+                    }
+                }
+                txt.Text = name;
+                MessageBox.Show("All numbers and special characters in text were deleted");
+            }
+        }
+
         //method adds new data into List Wiki
         private void btnAdd_Click(object sender, EventArgs e)
         {
@@ -85,27 +110,31 @@ namespace WikiApp
             {
                 if (checkItems() && validName(txtInput.Text))
                 {
+                    //call method to filter out numeric or special character input
+                    filterNumCharInput(txtInput);
+                    filterNumCharInput(txtBoxDefinition);
+
                     Information inf = new Information();
-                    inf.Name = txtInput.Text;
-                    inf.Category = cmbBox.Text;
 
-                    inf.Structure = radioButtonText();
+                    inf.SetName(txtInput.Text);                 
+                    inf.SetCategory(cmbBox.Text);
 
-                    inf.Definition = txtBoxDefinition.Text;
+                    inf.SetStructure(radioButtonText());
 
-                    Wiki.Add(inf);
+                    inf.SetDefinition(txtBoxDefinition.Text);
+
+                    Wiki.Add(inf);                    
+                    lstViewDisplaySort();
                     sizeWiki++;
 
-                    MessageBox.Show("New data added into list");
-
-                    lstViewDisplaySort();
+                    MessageBox.Show("New data added to list");                    
                 }
                 else
                 {
-                    MessageBox.Show("Data wasnt added into list");
+                    MessageBox.Show("Data wasn't added to list");
                     if (!validName(txtInput.Text))
                     {
-                        MessageBox.Show("Dublicate input: '" + txtInput.Text + "' alreade exists");
+                        MessageBox.Show("Duplicate input: '" + txtInput.Text + "' already exists");
                     }
                 }
             }
@@ -125,6 +154,7 @@ namespace WikiApp
             lstViewDisplaySort();
 
             populateComboBox();
+
         }
 
         //method to populate combo Box with Categories, from txt file
@@ -191,7 +221,7 @@ namespace WikiApp
         //method checks for dublicates in Wiki List by Name
         private bool validName(string txt)
         {
-            return !Wiki.Exists(x => x.Name == txt);
+            return !Wiki.Exists(x => x.GetName() == txt);
         }
 
         //method return text of sellected radio button
@@ -261,8 +291,8 @@ namespace WikiApp
                     {
                         for (int j = i + 1; j < Wiki.Count; j++)
                         {
-                            if (string.Compare((Wiki[i].Name.ToString()),
-                                (Wiki[j].Name.ToString())) > 0)
+                            if (string.Compare((Wiki[i].GetName().ToString()),
+                                (Wiki[j].GetName().ToString())) > 0)
                             {
                                 Information inf = new Information();
 
@@ -281,8 +311,8 @@ namespace WikiApp
                     lstView.Items.Clear();
                     for (int i = 0; i < Wiki.Count; i++)
                     {
-                        ListViewItem item = new ListViewItem(Wiki[i].Name);
-                        item.SubItems.Add(Wiki[i].Category);
+                        ListViewItem item = new ListViewItem(Wiki[i].GetName());
+                        item.SubItems.Add(Wiki[i].GetCategory());
                         lstView.Items.Add(item);
                     }
                 }
@@ -312,7 +342,7 @@ namespace WikiApp
             {
                 if (lstView.SelectedItems.Count > 0)
                 {
-                    var check = MessageBox.Show("The data would be deleted, you want to countinue?",
+                    var check = MessageBox.Show("The data would be deleted; would you like to continue?",
                         "Deliting Data", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                     if (check == DialogResult.Yes)
@@ -327,7 +357,7 @@ namespace WikiApp
                     }
                     else
                     {
-                        MessageBox.Show("The deliting was canceled");
+                        MessageBox.Show("The deleting was cancelled");
                     }
                 }
                 else
@@ -346,22 +376,32 @@ namespace WikiApp
         {
             try
             {
-                if (!(string.IsNullOrEmpty(txtInput.Text) || string.IsNullOrEmpty(txtBoxDefinition.Text) || string.IsNullOrEmpty(cmbBox.Text)))
+                if (lstView.SelectedItems.Count > 0)
                 {
-                    int index = lstView.FocusedItem.Index;
-                    Wiki[index].Name = txtInput.Text;
-                    Wiki[index].Category = cmbBox.Text;
-                    Wiki[index].Definition = txtBoxDefinition.Text;
-                    Wiki[index].Structure = radioButtonText();
+                    if (!(string.IsNullOrEmpty(txtInput.Text) || string.IsNullOrEmpty(txtBoxDefinition.Text) || string.IsNullOrEmpty(cmbBox.Text)))
+                    {
+                        int index = lstView.FocusedItem.Index;
+                        Wiki[index].SetName(txtInput.Text);
+                        Wiki[index].SetCategory(cmbBox.Text);
+                        Wiki[index].SetDefinition(txtBoxDefinition.Text);
+                        Wiki[index].SetStructure(radioButtonText());
 
-                    lstViewDisplaySort();
+                        lstViewDisplaySort();
 
-                    clearItems();
+                        clearItems();
+
+                        MessageBox.Show("Successfully edited");
+                    }
+                    else
+                    {
+                        MessageBox.Show("The Form's components cannot be empty");
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("To Edite data select it from List View");
+                    MessageBox.Show("Select data in List View to edit it");
                 }
+
             }
             catch (IOException ioeError)
             {
@@ -377,11 +417,11 @@ namespace WikiApp
                 if (lstView.SelectedItems.Count > 0)
                 {
                     int index = lstView.FocusedItem.Index;
-                    txtInput.Text = Wiki[index].Name;
-                    txtBoxDefinition.Text = Wiki[index].Definition;
-                    cmbBox.Text = Wiki[index].Category;
+                    txtInput.Text = Wiki[index].GetName();
+                    txtBoxDefinition.Text = Wiki[index].GetDefintion();
+                    cmbBox.Text = Wiki[index].GetCategory();
 
-                    string radioButton = Wiki[index].Structure;
+                    string radioButton = Wiki[index].GetStructure();
                     if (radioButton.CompareTo(rdoButtonL.Text) == 0)
                     {
                         rdoButtonL.Checked = true;
@@ -451,7 +491,7 @@ namespace WikiApp
                         for (int i = 0; i < Wiki.Count; i++)
                         {
 
-                            search.Add(Wiki[i].Name.ToString().ToLower());
+                            search.Add(Wiki[i].GetName().ToString().ToLower());
 
                         }
 
@@ -466,16 +506,16 @@ namespace WikiApp
                             lstView.Items[search.BinarySearch(txtSearch.Text.ToLower())].Selected = true;
 
                             //populating the components with appropriate data
-                            txtInput.Text = Wiki[search.BinarySearch(txtSearch.Text.ToLower())].Name;
-                            cmbBox.Text = Wiki[search.BinarySearch(txtSearch.Text.ToLower())].Category;
-                            txtBoxDefinition.Text = Wiki[search.BinarySearch(txtSearch.Text.ToLower())].Definition;
+                            txtInput.Text = Wiki[search.BinarySearch(txtSearch.Text.ToLower())].GetName();
+                            cmbBox.Text = Wiki[search.BinarySearch(txtSearch.Text.ToLower())].GetCategory();
+                            txtBoxDefinition.Text = Wiki[search.BinarySearch(txtSearch.Text.ToLower())].GetDefintion();
 
-                            if (rdoButtonL.Text.CompareTo(Wiki[search.BinarySearch(txtSearch.Text.ToLower())].Structure) == 0)
+                            if (rdoButtonL.Text.CompareTo(Wiki[search.BinarySearch(txtSearch.Text.ToLower())].GetStructure()) == 0)
                             {
                                 rdoButtonL.Checked = true;
                                 rdoButtonN.Checked = false;
                             }
-                            else if (rdoButtonN.Text.CompareTo(Wiki[search.BinarySearch(txtSearch.Text.ToLower())].Structure) == 0)
+                            else if (rdoButtonN.Text.CompareTo(Wiki[search.BinarySearch(txtSearch.Text.ToLower())].GetStructure()) == 0)
                             {
                                 rdoButtonL.Checked = false;
                                 rdoButtonN.Checked = true;
@@ -604,10 +644,10 @@ namespace WikiApp
                         while (br.BaseStream.Position != br.BaseStream.Length)
                         {
                             Information inf = new Information();
-                            inf.Name = br.ReadString();
-                            inf.Category = br.ReadString();
-                            inf.Structure = br.ReadString();
-                            inf.Definition = br.ReadString();
+                            inf.SetName(br.ReadString());
+                            inf.SetCategory(br.ReadString());
+                            inf.SetStructure(br.ReadString());
+                            inf.SetDefinition(br.ReadString());
 
                             Wiki.Add(inf);
                             sizeWiki++;
@@ -652,10 +692,10 @@ namespace WikiApp
 
                     for (int i = 0; i <= sizeWiki; i++)
                     {
-                        bw.Write(Wiki[i].Name);
-                        bw.Write(Wiki[i].Category);
-                        bw.Write(Wiki[i].Structure);
-                        bw.Write(Wiki[i].Definition);
+                        bw.Write(Wiki[i].GetName());
+                        bw.Write(Wiki[i].GetCategory());
+                        bw.Write(Wiki[i].GetStructure());
+                        bw.Write(Wiki[i].GetDefintion());
                     }
 
                     bw.Close();
@@ -673,6 +713,12 @@ namespace WikiApp
             File.WriteAllText(path, "");
 
             writeTo(path);
+        }
+
+        private void txtInput_MouseMove(object sender, MouseEventArgs e)
+        {
+            ToolTip tipTxtInput = new ToolTip();
+            tipTxtInput.SetToolTip(txtInput, "Name");
         }
     }
 
