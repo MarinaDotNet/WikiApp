@@ -3,7 +3,6 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace WikiApp
 {
-    //ComboBox array from txt file?
     public partial class frm1 : Form
     {
         private static readonly string path = "definition.bin";
@@ -163,16 +162,35 @@ namespace WikiApp
         {
             try
             {
+                string[] category = new string[6];
+
+            File:
                 if (File.Exists("Category.txt"))
                 {
+
                     using (BinaryReader br = new BinaryReader(File.OpenRead("Category.txt")))
                     {
-                        while (br.BaseStream.Position != br.BaseStream.Length)
+                        //With out array
+                        //    while (br.BaseStream.Position != br.BaseStream.Length)
+                        //    {
+                        //        cmbBox.Items.Add(br.ReadString());
+                        //    }
+
+                        for (int i = 0; i < category.Length; i++)
                         {
-                            cmbBox.Items.Add(br.ReadString());
+                            category[i] = br.ReadString();
                         }
+
                         br.Close();
+
+                        //whith array
+                        foreach (string categoryT in category)
+                        {
+                            cmbBox.Items.Add(categoryT);
+                        }
                     }
+
+
                 }
                 else
                 {
@@ -188,16 +206,11 @@ namespace WikiApp
                         bw.Write("Hash");
 
                         bw.Close();
+
                     }
 
-                    using (BinaryReader br = new BinaryReader(File.OpenRead("Category.txt")))
-                    {
-                        while (br.BaseStream.Position != br.BaseStream.Length)
-                        {
-                            cmbBox.Items.Add(br.ReadString());
-                        }
-                        br.Close();
-                    }
+                    goto File;
+
                 }
             }
             catch (FileFormatException ffeError)
