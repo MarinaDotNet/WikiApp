@@ -46,8 +46,10 @@
             this.btnLoad = new System.Windows.Forms.Button();
             this.stsStrip = new System.Windows.Forms.StatusStrip();
             this.drpBoxButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.errorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.txtSearch = new System.Windows.Forms.TextBox();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.grpBox.SuspendLayout();
             this.stsStrip.SuspendLayout();
             this.SuspendLayout();
@@ -200,7 +202,8 @@
             // stsStrip
             // 
             this.stsStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.drpBoxButton});
+            this.drpBoxButton,
+            this.toolStripStatusLabel1});
             this.stsStrip.Location = new System.Drawing.Point(0, 521);
             this.stsStrip.Name = "stsStrip";
             this.stsStrip.Size = new System.Drawing.Size(696, 22);
@@ -211,11 +214,20 @@
             // 
             this.drpBoxButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.drpBoxButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.drpBoxButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.errorToolStripMenuItem});
+            this.drpBoxButton.Enabled = false;
             this.drpBoxButton.Image = ((System.Drawing.Image)(resources.GetObject("drpBoxButton.Image")));
             this.drpBoxButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.drpBoxButton.Name = "drpBoxButton";
             this.drpBoxButton.Size = new System.Drawing.Size(29, 20);
             this.drpBoxButton.Text = "Errors";
+            // 
+            // errorToolStripMenuItem
+            // 
+            this.errorToolStripMenuItem.Name = "errorToolStripMenuItem";
+            this.errorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.errorToolStripMenuItem.Text = "Error";
             // 
             // label1
             // 
@@ -232,6 +244,13 @@
             this.txtSearch.Name = "txtSearch";
             this.txtSearch.Size = new System.Drawing.Size(100, 23);
             this.txtSearch.TabIndex = 16;
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(32, 17);
+            this.toolStripStatusLabel1.Text = "Error";
+            this.toolStripStatusLabel1.Click += new System.EventHandler(this.toolStripStatusLabel1_Click);
             // 
             // frm1
             // 
@@ -286,5 +305,7 @@
         private ColumnHeader clmCategory;
         private Label label1;
         private TextBox txtSearch;
+        private ToolStripMenuItem errorToolStripMenuItem;
+        private ToolStripStatusLabel toolStripStatusLabel1;
     }
 }

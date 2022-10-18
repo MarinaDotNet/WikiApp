@@ -1,6 +1,11 @@
 using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 
+//author: msichova
+//student id: P272494
+//WikiApp
+//18.10.2022
+
 namespace WikiApp
 {
     public partial class frm1 : Form
@@ -115,18 +120,18 @@ namespace WikiApp
 
                     Information inf = new Information();
 
-                    inf.SetName(txtInput.Text);                 
+                    inf.SetName(txtInput.Text);
                     inf.SetCategory(cmbBox.Text);
 
                     inf.SetStructure(radioButtonText());
 
                     inf.SetDefinition(txtBoxDefinition.Text);
 
-                    Wiki.Add(inf);                    
+                    Wiki.Add(inf);
                     lstViewDisplaySort();
                     sizeWiki++;
 
-                    MessageBox.Show("New data added to list");                    
+                    MessageBox.Show("New data added to list");
                 }
                 else
                 {
@@ -732,6 +737,11 @@ namespace WikiApp
         {
             ToolTip tipTxtInput = new ToolTip();
             tipTxtInput.SetToolTip(txtInput, "Name");
+        }
+
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 

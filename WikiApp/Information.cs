@@ -40,7 +40,7 @@ namespace WikiApp
             return this.structure;
         }
 
-        public void SetDefinition (string definition)
+        public void SetDefinition(string definition)
         {
             this.definition = definition;
         }
