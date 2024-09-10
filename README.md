@@ -21,3 +21,13 @@ This application is designed to manage information about various Data Structures
 - **Frameworks:** .NET Core, Windows Forms
 - **Storage:** Binary file format (default), with optional support for other formats (e.g., XML, JSON)
 - **Other Tools:** GitHub for version control, Visual Studio as the integrated development environment (IDE)
+
+### Screenshot
+Here’s a preview of the running application: 
+
+![Application Screenshot](https://github.com/user-attachments/assets/1492bfbb-dace-4bd8-8570-49b9751b9688)
+
+### UML Class Diagram
+Below is the UML class diagram illustrating the key classes and relationships:
+
+![UML Diagram](https://github.com/user-attachments/assets/baf901e8-7987-4052-b476-b480f73d1ddf)
